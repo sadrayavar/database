@@ -94,4 +94,25 @@ export default class Database {
 		this.#error("database.js-checkTableName: table doesnt exist")
 		return false
 	}
+
+	/**
+	 * get the data index
+	 * @param {string} inputTable the name of the table that the data will be searched on
+	 * @param {object} inputData the data that user want to search
+	 * @returns index of the data if its found, and false if it isnt found
+	 */
+	#checkDataExist(inputTable, inputId) {
+		const table = this.#checkTable(inputTable)
+		const data = this.#loadData()
+
+		for (let i = 0; i < data[table].length; i++) {
+			if (data[table][i].id === inputId) {
+				this.#log("database.js-checkExist: Data found in ", i, "with the table name of:", table)
+				return i
+			}
+		}
+
+		this.#error("database.js-checkDataExist: Given table name is valid, but data doesnt exist")
+		return false
+	}
 }
