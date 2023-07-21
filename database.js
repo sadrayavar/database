@@ -181,7 +181,33 @@ export default class Database {
 	 * @param {number} inputId the id of the data that you want to delete
 	 * @returns {boolean} whether data is deleted or not
 	 */
-	delete(inputTable, inputId) {}
+	remove(inputTable, inputId) {
+		try {
+			// check if table name exist in database
+			const tableName = this.#checkTableName(inputTable)
+			if (tableName === false) {
+				this.#error("database.js-remove: data is not removed because table doesnt exist")
+				return false
+			}
+
+			// check if data exists in the table
+			const dataPlace = this.#checkDataExist(inputTable, inputId)
+			if (dataPlace === false) {
+				this.#error("database.js-remove: data is not remove because data with this id already exists")
+				return false
+			}
+
+			// remove data
+			const database = this.#loadData()
+			database[table].splice(dataPlace, 1)
+			this.#saveData(database)
+			this.#log(`database.js-remove: data in the ${exist} remvoed`)
+			return true
+		} catch (error) {
+			this.#error(`database.js-remove: something went wrong. error: ${error}`)
+			return false
+		}
+	}
 
 	/**
 	 * edits data
