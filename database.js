@@ -123,17 +123,17 @@ export default class Database {
 	 */
 	#checkDataExist(inputTable, inputId) {
 		try {
-			const table = this.#checkTable(inputTable)
-			const data = this.#loadData()
+			const tableName = this.#checkTableName(inputTable)
+			const database = this.#loadData()
 
-			for (let i = 0; i < data[table].length; i++) {
-				if (data[table][i].id === inputId) {
-					this.#log("database.js-checkExist: Data found in ", i, "with the table name of:", table)
+			for (let i = 0; i < database[tableName].length; i++) {
+				if (database[tableName][i].id === inputId) {
+					this.#log(`database.js-checkExist: Data found in  ${i}, with the table name of: ${tableName}`)
 					return i
 				}
 			}
 
-			this.#error("database.js-checkDataExist: Given table name is valid, but data doesnt exist")
+			this.#error("database.js-checkDataExist: Given data id doesnt exist")
 			return false
 		} catch (error) {
 			this.#error(`database.js-checkDataExist: something went wrong. error: ${error}`)
