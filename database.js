@@ -118,7 +118,7 @@ export default class Database {
 	/**
 	 * get the data index
 	 * @param {string} inputTable the name of the table that the data will be searched on
-	 * @param {object} inputData the data that user want to search
+	 * @param {number} inpuId the data id that user want to search
 	 * @returns {number | false} index of the data if its found, and false if it isnt found
 	 */
 	#checkDataExist(inputTable, inputId) {
@@ -233,5 +233,30 @@ export default class Database {
 	 * @param {number} inputId the id of the data that you want to get
 	 * @returns {object | false} the object data and false if it cant
 	 */
-	read(inputTable, inputId) {}
+	read(inputTable, inputId) {
+		try {
+			// check if table name exist in database
+			const tableName = this.#checkTableName(inputTable)
+			if (tableName === false) {
+				this.#error("database.js-read: data is not readed because table doesnt exist")
+				return false
+			}
+
+			// check if data exists in the table
+			const dataPlace = this.#checkDataExist(inputId)
+			if (dataPlace === false) {
+				this.#error("database.js-read: data is not readed because data with this id does not exists")
+				return false
+			}
+
+			// read data
+			const database = this.#loadData()
+			const table = database[tableName]
+			const data = table[dataPlace]
+			return data
+		} catch (error) {
+			this.#error(`database.js-read: something went wrong. error: ${error}`)
+			return false
+		}
+	}
 }
