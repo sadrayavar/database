@@ -37,10 +37,14 @@ export default class Database {
 	 * @param {object} data
 	 */
 	#saveData = (data) => {
-		const stringified = JSON.stringify(data)
-		const encoded = btoa(stringified)
-		localStorage.setItem(this.databaseName, encoded)
-		this.#log("database.js-saveData: data succesfully saved in localStorage")
+		try {
+			const stringified = JSON.stringify(data)
+			const encoded = btoa(stringified)
+			localStorage.setItem(this.databaseName, encoded)
+			this.#log("database.js-saveData: data succesfully saved in localStorage")
+		} catch (error) {
+			this.#error(`database.js-saveData: something went wrong. error: ${error}`)
+		}
 	}
 
 	/**
@@ -48,15 +52,19 @@ export default class Database {
 	 * @returns data
 	 */
 	#loadData = () => {
-		const stringified = localStorage.getItem(this.databaseName)
-		if (stringified === null) {
-			this.#error("database.js-loadData: data didnt load because it was null")
-			return false
-		}
+		try {
+			const stringified = localStorage.getItem(this.databaseName)
+			if (stringified === null) {
+				this.#error("database.js-loadData: data didnt load because it was null")
+				return false
+			}
 
-		this.#log("database.js-loadData: data loaded succcesfully")
-		const decoded = atob(stringified)
-		return JSON.parse(decoded)
+			this.#log("database.js-loadData: data loaded succcesfully")
+			const decoded = atob(stringified)
+			return JSON.parse(decoded)
+		} catch (error) {
+			this.#error(`database.js-loadData: something went wrong. error: ${error}`)
+		}
 	}
 
 	/**
@@ -64,7 +72,11 @@ export default class Database {
 	 * @param {*} input
 	 */
 	#log(...input) {
-		if (this.#debug === 2) console.log(...input)
+		try {
+			if (this.#debug === 2) console.log(...input)
+		} catch (error) {
+			console.log(`database.js-saveData: something went wrong. error: ${error}`)
+		}
 	}
 
 	/**
@@ -72,7 +84,11 @@ export default class Database {
 	 * @param {*} input
 	 */
 	#error(...input) {
-		if (this.#debug >= 1) console.error(...input)
+		try {
+			if (this.#debug >= 1) console.error(...input)
+		} catch (error) {
+			console.error(`database.js-saveData: something went wrong. error: ${error}`)
+		}
 	}
 
 	/**
@@ -81,18 +97,22 @@ export default class Database {
 	 * @returns {string | false} the name of the table if its found and false if it doesnt
 	 */
 	#checkTableName(inpuName) {
-		const tableNames = Object.keys(this.#loadData())
+		try {
+			const tableNames = Object.keys(this.#loadData())
 
-		for (let index = 0; index < tableNames.length; index++) {
-			const table = tableNames[index]
-			if (inpuName === table) {
-				this.#log("database.js-checkTableName: the table that you are looking for is", table, "and exists")
-				return table
+			for (let index = 0; index < tableNames.length; index++) {
+				const table = tableNames[index]
+				if (inpuName === table) {
+					this.#log("database.js-checkTableName: the table that you are looking for is", table, "and exists")
+					return table
+				}
 			}
-		}
 
-		this.#error("database.js-checkTableName: table doesnt exist")
-		return false
+			this.#error("database.js-checkTableName: table doesnt exist")
+			return false
+		} catch (error) {
+			this.#error(`database.js-checkTableName: something went wrong. error: ${error}`)
+		}
 	}
 
 	/**
@@ -102,18 +122,22 @@ export default class Database {
 	 * @returns {number | false} index of the data if its found, and false if it isnt found
 	 */
 	#checkDataExist(inputTable, inputId) {
-		const table = this.#checkTable(inputTable)
-		const data = this.#loadData()
+		try {
+			const table = this.#checkTable(inputTable)
+			const data = this.#loadData()
 
-		for (let i = 0; i < data[table].length; i++) {
-			if (data[table][i].id === inputId) {
-				this.#log("database.js-checkExist: Data found in ", i, "with the table name of:", table)
-				return i
+			for (let i = 0; i < data[table].length; i++) {
+				if (data[table][i].id === inputId) {
+					this.#log("database.js-checkExist: Data found in ", i, "with the table name of:", table)
+					return i
+				}
 			}
-		}
 
-		this.#error("database.js-checkDataExist: Given table name is valid, but data doesnt exist")
-		return false
+			this.#error("database.js-checkDataExist: Given table name is valid, but data doesnt exist")
+			return false
+		} catch (error) {
+			this.#error(`database.js-checkDataExist: something went wrong. error: ${error}`)
+		}
 	}
 
 	/**
