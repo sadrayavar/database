@@ -99,7 +99,7 @@ export default class Database {
 	 * get the data index
 	 * @param {string} inputTable the name of the table that the data will be searched on
 	 * @param {object} inputData the data that user want to search
-	 * @returns index of the data if its found, and false if it isnt found
+	 * @returns {number | false} index of the data if its found, and false if it isnt found
 	 */
 	#checkDataExist(inputTable, inputId) {
 		const table = this.#checkTable(inputTable)
@@ -119,34 +119,60 @@ export default class Database {
 	/**
 	 * adds data to database
 	 * every data must have a unique id field
-	 * @param {string} inpuTable the table you want to add the data on
+	 * @param {string} inputTable the table you want to add the data on
 	 * @param {object} inputData data you want to add
 	 * @returns {boolean} whether data is added or not
 	 */
-	add(inpuTable, inputData) {}
+	add(inputTable, inputData) {
+		try {
+			// check if table name exist in database
+			const tableName = this.#checkTableName(inputTable)
+			if (tableName === false) {
+				this.#error("database.js-add: data is not added because table doesnt exist")
+				return false
+			}
+
+			// check if data exists in the table
+			const dataPlace = this.#checkDataExist(inputTable, inputData.id)
+			if (dataPlace === false) {
+				this.#error("database.js-add: data is not added because data with this id already exists")
+				return false
+			}
+
+			// add data
+			const database = this.#loadData()
+			database[tableName].push(inputData)
+			this.#saveData(database)
+			this.#log(`database.js-add: data added succesfully to database in ${tableName} table`)
+			return true
+		} catch (error) {
+			this.#error(`database.js-add: something went wrong. error: ${error}`)
+			return false
+		}
+	}
 
 	/**
 	 * deletes data
-	 * @param {string} inpuTable the table you want to to delete the data from
+	 * @param {string} inputTable the table you want to to delete the data from
 	 * @param {number} inputId the id of the data that you want to delete
 	 * @returns {boolean} whether data is deleted or not
 	 */
-	delete(inpuTable, inputId) {}
+	delete(inputTable, inputId) {}
 
 	/**
 	 * edits data
 	 * data must have a unique id field
-	 * @param {string} inpuTable the table of the data that you want to edit
+	 * @param {string} inputTable the table of the data that you want to edit
 	 * @param {object} inputData data you want to edit
 	 * @returns {boolean} whether data is edited or not
 	 */
-	edit(inpuTable, inputData) {}
+	edit(inputTable, inputData) {}
 
 	/**
 	 * outputs the data that you want to get
-	 * @param {string} inpuTable the table you want to to read the data from
+	 * @param {string} inputTable the table you want to to read the data from
 	 * @param {number} inputId the id of the data that you want to get
 	 * @returns {object | false} the object data and false if it cant
 	 */
-	read(inpuTable, inputId) {}
+	read(inputTable, inputId) {}
 }
