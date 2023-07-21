@@ -74,4 +74,24 @@ export default class Database {
 	#error(...input) {
 		if (this.#debug >= 1) console.error(...input)
 	}
+
+	/**
+	 * checks if the given table name exist in database or not
+	 * @param {string } inpuName table name that you want to make sure that its exist or not
+	 * @returns {string | false} the name of the table if its found and false if it doesnt
+	 */
+	#checkTableName(inpuName) {
+		const tableNames = Object.keys(this.#loadData())
+
+		for (let index = 0; index < tableNames.length; index++) {
+			const table = tableNames[index]
+			if (inpuName === table) {
+				this.#log("database.js-checkTableName: the table that you are looking for is", table, "and exists")
+				return table
+			}
+		}
+
+		this.#error("database.js-checkTableName: table doesnt exist")
+		return false
+	}
 }
