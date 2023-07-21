@@ -158,7 +158,7 @@ export default class Database {
 
 			// check if data exists in the table
 			const dataPlace = this.#checkDataExist(inputTable, inputData.id)
-			if (dataPlace === false) {
+			if (dataPlace !== false) {
 				this.#error("database.js-add: data is not added because data with this id already exists")
 				return false
 			}
@@ -193,7 +193,7 @@ export default class Database {
 			// check if data exists in the table
 			const dataPlace = this.#checkDataExist(inputTable, inputId)
 			if (dataPlace === false) {
-				this.#error("database.js-remove: data is not remove because data with this id already exists")
+				this.#error("database.js-remove: data is not removed because data with this id does not exists")
 				return false
 			}
 
@@ -216,7 +216,16 @@ export default class Database {
 	 * @param {object} inputData data you want to edit
 	 * @returns {boolean} whether data is edited or not
 	 */
-	edit(inputTable, inputData) {}
+	edit(inputTable, inputData) {
+		try {
+			this.remove(tableName, inputData.id)
+			this.add(inputTable, inputData)
+			return true
+		} catch (error) {
+			this.#error(`database.js-edit: something went wrong. error: ${error}`)
+			return false
+		}
+	}
 
 	/**
 	 * outputs the data that you want to get
