@@ -28,7 +28,9 @@ export default class Database {
 		}
 		// if the given initData is not valid
 		else {
-			this.#error('database.js-constructor: try again and use true or data object in "initData" parameter')
+			this.#error(
+				`database.js-constructor: try again and use true or data object in "initData" parameter. current initData is: ${initData}`
+			)
 		}
 	}
 
@@ -43,7 +45,7 @@ export default class Database {
 			localStorage.setItem(this.databaseName, encoded)
 			this.#log("database.js-saveData: data succesfully saved in localStorage")
 		} catch (error) {
-			this.#error(`database.js-saveData: something went wrong. error: ${error}`)
+			this.#error(`database.js-saveData: something went wrong. ${error}`)
 		}
 	}
 
@@ -55,7 +57,7 @@ export default class Database {
 		try {
 			const stringified = localStorage.getItem(this.databaseName)
 			if (stringified === null) {
-				this.#error("database.js-loadData: data didnt load because it was null")
+				this.#error(`database.js-loadData: data didnt load because it was: ${stringified}`)
 				return false
 			}
 
@@ -63,7 +65,7 @@ export default class Database {
 			const decoded = atob(stringified)
 			return JSON.parse(decoded)
 		} catch (error) {
-			this.#error(`database.js-loadData: something went wrong. error: ${error}`)
+			this.#error(`database.js-loadData: something went wrong. ${error}`)
 		}
 	}
 
@@ -75,7 +77,7 @@ export default class Database {
 		try {
 			if (this.#debug === 2) console.log(...input)
 		} catch (error) {
-			console.log(`database.js-saveData: something went wrong. error: ${error}`)
+			console.log(`database.js-saveData: something went wrong. ${error}`)
 		}
 	}
 
@@ -87,31 +89,31 @@ export default class Database {
 		try {
 			if (this.#debug >= 1) console.error(...input)
 		} catch (error) {
-			console.error(`database.js-saveData: something went wrong. error: ${error}`)
+			console.error(`database.js-saveData: something went wrong. ${error}`)
 		}
 	}
 
 	/**
 	 * checks if the given table name exist in database or not
-	 * @param {string } inpuName table name that you want to make sure that its exist or not
+	 * @param {string } inputName table name that you want to make sure that its exist or not
 	 * @returns {string | false} the name of the table if its found and false if it doesnt
 	 */
-	#checkTableName(inpuName) {
+	#checkTableName(inputName) {
 		try {
 			const tableNames = Object.keys(this.#loadData())
 
 			for (let index = 0; index < tableNames.length; index++) {
 				const table = tableNames[index]
-				if (inpuName === table) {
+				if (inputName === table) {
 					this.#log("database.js-checkTableName: the table that you are looking for is", table, "and exists")
 					return table
 				}
 			}
 
-			this.#error("database.js-checkTableName: table doesnt exist")
+			this.#error(`database.js-checkTableName: table with this name doesnt exist: ${inputName}`)
 			return false
 		} catch (error) {
-			this.#error(`database.js-checkTableName: something went wrong. error: ${error}`)
+			this.#error(`database.js-checkTableName: something went wrong. ${error}`)
 		}
 	}
 
@@ -123,20 +125,26 @@ export default class Database {
 	 */
 	#checkDataExist(inputTable, inputId) {
 		try {
+			// check if table name exist in database
 			const tableName = this.#checkTableName(inputTable)
-			const database = this.#loadData()
+			if (tableName === false) {
+				this.#error(`database.js-add: data is not added because this table name doesnt exist: ${tableName}`)
+				return false
+			}
 
-			for (let i = 0; i < database[tableName].length; i++) {
+			const database = this.#loadData()
+			const table = database[tableName]
+			for (let i = 0; i < table.length; i++) {
 				if (database[tableName][i].id === inputId) {
 					this.#log(`database.js-checkExist: Data found in  ${i}, with the table name of: ${tableName}`)
 					return i
 				}
 			}
 
-			this.#error("database.js-checkDataExist: Given data id doesnt exist")
+			this.#log("database.js-checkDataExist: Given data id doesnt exist")
 			return false
 		} catch (error) {
-			this.#error(`database.js-checkDataExist: something went wrong. error: ${error}`)
+			this.#error(`database.js-checkDataExist: something went wrong. ${error}`)
 		}
 	}
 
@@ -152,14 +160,16 @@ export default class Database {
 			// check if table name exist in database
 			const tableName = this.#checkTableName(inputTable)
 			if (tableName === false) {
-				this.#error("database.js-add: data is not added because table doesnt exist")
+				this.#error(`database.js-add: data is not added because ${tableName} table doesnt exist`)
 				return false
 			}
 
 			// check if data exists in the table
 			const dataPlace = this.#checkDataExist(inputTable, inputData.id)
 			if (dataPlace !== false) {
-				this.#error("database.js-add: data is not added because data with this id already exists")
+				this.#error(
+					`database.js-add: data is not added because data with this id already exists: ${dataPlace} in this table: ${tableName}`
+				)
 				return false
 			}
 
@@ -170,7 +180,7 @@ export default class Database {
 			this.#log(`database.js-add: data added succesfully to database in ${tableName} table`)
 			return true
 		} catch (error) {
-			this.#error(`database.js-add: something went wrong. error: ${error}`)
+			this.#error(`database.js-add: something went wrong. ${error}`)
 			return false
 		}
 	}
@@ -178,7 +188,7 @@ export default class Database {
 	/**
 	 * deletes data
 	 * @param {string} inputTable the table you want to to delete the data from
-	 * @param {number} inputId the id of the data that you want to delete
+	 * @param {number | string} inputId the id of the data that you want to delete
 	 * @returns {boolean} whether data is deleted or not
 	 */
 	remove(inputTable, inputId) {
@@ -186,25 +196,25 @@ export default class Database {
 			// check if table name exist in database
 			const tableName = this.#checkTableName(inputTable)
 			if (tableName === false) {
-				this.#error("database.js-remove: data is not removed because table doesnt exist")
+				this.#error(`database.js-remove: data is not removed because this table doesnt exist: ${tableName}`)
 				return false
 			}
 
 			// check if data exists in the table
 			const dataPlace = this.#checkDataExist(inputTable, inputId)
 			if (dataPlace === false) {
-				this.#error("database.js-remove: data is not removed because data with this id does not exists")
+				this.#error(`database.js-remove: data is not removed because data with this id does not exists: ${dataPlace}`)
 				return false
 			}
 
 			// remove data
 			const database = this.#loadData()
-			database[table].splice(dataPlace, 1)
+			database[tableName].splice(dataPlace, 1)
 			this.#saveData(database)
-			this.#log(`database.js-remove: data in the ${exist} remvoed`)
+			this.#log(`database.js-remove: data in the ${dataPlace} remvoed`)
 			return true
 		} catch (error) {
-			this.#error(`database.js-remove: something went wrong. error: ${error}`)
+			this.#error(`database.js-remove: something went wrong. ${error}`)
 			return false
 		}
 	}
@@ -218,11 +228,11 @@ export default class Database {
 	 */
 	edit(inputTable, inputData) {
 		try {
-			this.remove(tableName, inputData.id)
+			this.remove(inputTable, inputData.id)
 			this.add(inputTable, inputData)
 			return true
 		} catch (error) {
-			this.#error(`database.js-edit: something went wrong. error: ${error}`)
+			this.#error(`database.js-edit: something went wrong. ${error}`)
 			return false
 		}
 	}
@@ -230,7 +240,7 @@ export default class Database {
 	/**
 	 * outputs the data that you want to get
 	 * @param {string} inputTable the table you want to to read the data from
-	 * @param {number} inputId the id of the data that you want to get
+	 * @param {number | string} inputId the id of the data that you want to get
 	 * @returns {object | false} the object data and false if it cant
 	 */
 	read(inputTable, inputId) {
@@ -238,14 +248,14 @@ export default class Database {
 			// check if table name exist in database
 			const tableName = this.#checkTableName(inputTable)
 			if (tableName === false) {
-				this.#error("database.js-read: data is not readed because table doesnt exist")
+				this.#error(`database.js-read: data is not readed because table with this name doesnt exist: ${tableName}`)
 				return false
 			}
 
 			// check if data exists in the table
-			const dataPlace = this.#checkDataExist(inputId)
+			const dataPlace = this.#checkDataExist(tableName, inputId)
 			if (dataPlace === false) {
-				this.#error("database.js-read: data is not readed because data with this id does not exists")
+				this.#error(`database.js-read: data is not readed because data with this id does not exists: ${dataPlace}`)
 				return false
 			}
 
@@ -255,7 +265,7 @@ export default class Database {
 			const data = table[dataPlace]
 			return data
 		} catch (error) {
-			this.#error(`database.js-read: something went wrong. error: ${error}`)
+			this.#error(`database.js-read: something went wrong. ${error}`)
 			return false
 		}
 	}
