@@ -115,4 +115,38 @@ export default class Database {
 		this.#error("database.js-checkDataExist: Given table name is valid, but data doesnt exist")
 		return false
 	}
+
+	/**
+	 * adds data to database
+	 * every data must have a unique id field
+	 * @param {string} inpuTable the table you want to add the data on
+	 * @param {object} inputData data you want to add
+	 * @returns {boolean} whether data is added or not
+	 */
+	add(inpuTable, inputData) {}
+
+	/**
+	 * deletes data
+	 * @param {string} inpuTable the table you want to to delete the data from
+	 * @param {number} inputId the id of the data that you want to delete
+	 * @returns {boolean} whether data is deleted or not
+	 */
+	delete(inpuTable, inputId) {}
+
+	/**
+	 * edits data
+	 * data must have a unique id field
+	 * @param {string} inpuTable the table of the data that you want to edit
+	 * @param {object} inputData data you want to edit
+	 * @returns {boolean} whether data is edited or not
+	 */
+	edit(inpuTable, inputData) {}
+
+	/**
+	 * outputs the data that you want to get
+	 * @param {string} inpuTable the table you want to to read the data from
+	 * @param {number} inputId the id of the data that you want to get
+	 * @returns {object | false} the object data and false if it cant
+	 */
+	read(inpuTable, inputId) {}
 }
