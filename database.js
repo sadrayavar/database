@@ -227,7 +227,7 @@ export default class Database {
 	 * edits data
 	 * data must have a unique id field
 	 * @param {string} inputTable the table of the data that you want to edit
-	 * @param {object} inputData data you want to edit
+	 * @param {object} inputData new form of the data you want to edit (remember that you cant edit id field)
 	 * @returns {boolean} whether data is edited or not
 	 */
 	edit(inputTable, inputData) {
