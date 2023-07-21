@@ -1,5 +1,5 @@
 export default class Database {
-	databaseName = ""
+	#databaseName = ""
 	#debug = 0
 
 	/**
@@ -14,8 +14,8 @@ export default class Database {
 		// initialize debug condition
 		this.#debug = debug
 
-		this.databaseName = name
-		this.#log("database.js-constructor: database is created with this name:", this.databaseName)
+		this.#databaseName = name
+		this.#log("database.js-constructor: database is created with this name:", this.#databaseName)
 
 		// if the initData is object
 		if (typeof initData === "object" && !Array.isArray(initData) && initData !== null) {
@@ -34,6 +34,8 @@ export default class Database {
 		}
 	}
 
+	// ################################################################# secondary methods
+
 	/**
 	 * saves given data in browser's local storage
 	 * @param {object} data
@@ -42,7 +44,7 @@ export default class Database {
 		try {
 			const stringified = JSON.stringify(data)
 			const encoded = btoa(stringified)
-			localStorage.setItem(this.databaseName, encoded)
+			localStorage.setItem(this.#databaseName, encoded)
 			this.#log("database.js-saveData: data succesfully saved in localStorage")
 		} catch (error) {
 			this.#error(`database.js-saveData: something went wrong. ${error}`)
@@ -55,7 +57,7 @@ export default class Database {
 	 */
 	#loadData = () => {
 		try {
-			const stringified = localStorage.getItem(this.databaseName)
+			const stringified = localStorage.getItem(this.#databaseName)
 			if (stringified === null) {
 				this.#error(`database.js-loadData: data didnt load because it was: ${stringified}`)
 				return false
@@ -147,6 +149,8 @@ export default class Database {
 			this.#error(`database.js-checkDataExist: something went wrong. ${error}`)
 		}
 	}
+
+	// ################################################################# main methods
 
 	/**
 	 * adds data to database
