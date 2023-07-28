@@ -1,3 +1,11 @@
+/**
+ * A database platform  that has 4 main methods:
+ * - add
+ * - remove
+ * - edit
+ * - read
+ * Saves data in browser localStorage
+ */
 export default class Database {
 	#databaseName = ""
 	#debug = 0
